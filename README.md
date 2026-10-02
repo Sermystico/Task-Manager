@@ -127,10 +127,3 @@ The server will be accessible at `http://127.0.0.1:8000`.
 ```
 
 ---
-
-## Interactive Documentation
-
-FastAPI provides built-in interactive API documentation:
-
-- **Swagger UI**: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
-- **ReDoc**: [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc)
