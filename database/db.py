@@ -8,7 +8,8 @@ conn = psycopg.connect(
     host=os.getenv("DB_HOST"),
     dbname=os.getenv("DB_NAME"),
     user=os.getenv("DB_USER"),
-    password=os.getenv("DB_PASSWORD")
+    password=os.getenv("DB_PASSWORD"),
+    autocommit=True
 )
 
 def get_all_tasks(user_id):

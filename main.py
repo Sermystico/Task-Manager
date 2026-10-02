@@ -36,14 +36,22 @@ def home():
 def get_tasks(current_user=Depends(get_current_user)):
     return get_all_tasks(current_user["user_id"])
 
+import psycopg
+
 @app.post("/register")
 def register_user(user: User):
     password_hash = hash_password(user.password)
 
-    return create_user(
-        user.username,
-        password_hash
-    )
+    try:
+        return create_user(
+            user.username,
+            password_hash
+        )
+    except psycopg.errors.UniqueViolation:
+        raise HTTPException(
+            status_code=400,
+            detail="Username already registered"
+        )
 
 @app.post("/login")
 def login_user(form_data: OAuth2PasswordRequestForm = Depends()):
