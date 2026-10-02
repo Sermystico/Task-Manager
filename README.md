@@ -6,7 +6,8 @@ A lightweight, robust RESTful API built with **FastAPI** and **PostgreSQL** (usi
 
 ## Features
 
-- **CRUD Operations**: Create, read, update, and delete tasks.
+- **Authentication**: JWT-based user registration and login (`bcrypt` hashing).
+- **User-Specific Tasks**: Secure CRUD operations ensuring tasks are strictly isolated per user.
 - **Data Validation**: Request validation powered by Pydantic.
 - **Relational Storage**: Direct, efficient PostgreSQL queries via `psycopg`.
 - **Auto-Generated Documentation**: Interactive API documentation via Swagger UI and ReDoc.
@@ -66,11 +67,18 @@ CREATE DATABASE task_management;
 
 \c task_management;
 
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(100) UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL
+);
+
 CREATE TABLE tasks (
     id SERIAL PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     description TEXT NOT NULL,
-    completed BOOLEAN DEFAULT FALSE
+    completed BOOLEAN DEFAULT FALSE,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE
 );
 ```
 
@@ -89,6 +97,8 @@ DB_HOST=localhost
 DB_NAME=task_management
 DB_USER=postgres
 DB_PASSWORD=your_password_here
+JWT_SECRET=your_secret_here
+JWT_ALGORITHM=HS256
 ```
 
 ---
@@ -107,14 +117,16 @@ The server will be accessible at `http://127.0.0.1:8000`.
 
 ## API Endpoints
 
-| Method | Endpoint | Description | Request Body |
-|---|---|---|---|
-| `GET` | `/` | Health check / Welcome message | *None* |
-| `GET` | `/tasks` | Retrieve all tasks | *None* |
-| `POST` | `/tasks` | Create a new task | JSON (`title`, `description`, `completed`) |
-| `GET` | `/tasks/{task_id}` | Retrieve a specific task by ID | *None* |
-| `PUT` | `/tasks/{task_id}` | Update an existing task | JSON (`title`, `description`, `completed`) |
-| `DELETE` | `/tasks/{task_id}` | Delete a task by ID | *None* |
+| Method | Endpoint | Description | Request Body | Auth Required |
+|---|---|---|---|---|
+| `GET` | `/` | Health check / Welcome message | *None* | No |
+| `POST` | `/register` | Register a new user | JSON (`username`, `password`) | No |
+| `POST` | `/login` | Authenticate user and get JWT | Form Data (`username`, `password`) | No |
+| `GET` | `/tasks` | Retrieve all tasks for current user | *None* | Yes |
+| `POST` | `/tasks` | Create a new task | JSON (`title`, `description`, `completed`) | Yes |
+| `GET` | `/tasks/{task_id}` | Retrieve a specific task by ID | *None* | Yes |
+| `PUT` | `/tasks/{task_id}` | Update an existing task | JSON (`title`, `description`, `completed`) | Yes |
+| `DELETE` | `/tasks/{task_id}` | Delete a task by ID | *None* | Yes |
 
 ### Sample Payload (`Task`)
 
