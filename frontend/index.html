@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" class="dark">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,11 +10,13 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
+
 <body>
     <!-- Shutter Overlay -->
     <div id="shutter-overlay" class="shutter-overlay">
         <div class="shutter-content">
-            <div class="brand-icon spin" style="width:48px;height:48px;margin: 0 auto 1rem;"><i data-lucide="hexagon" style="width:48px;height:48px;"></i></div>
+            <div class="brand-icon spin" style="width:48px;height:48px;margin: 0 auto 1rem;"><i data-lucide="hexagon"
+                    style="width:48px;height:48px;"></i></div>
             <h1 style="font-weight: 600; font-size: 1.5rem; letter-spacing: -0.05em;">Task Manager</h1>
         </div>
     </div>
@@ -36,7 +39,7 @@
                     <i data-lucide="check-square" class="brand-icon"></i>
                     <h1>Task Manager</h1>
                 </div>
-                
+
                 <div class="auth-card glass-panel">
                     <div class="auth-header">
                         <h2 id="auth-title">Welcome Back</h2>
@@ -60,8 +63,10 @@
                             <label for="password">Password</label>
                             <div class="input-wrapper">
                                 <i data-lucide="lock" class="input-icon"></i>
-                                <input type="password" id="password" placeholder="••••••••" required autocomplete="current-password">
-                                <button type="button" class="btn-icon password-toggle" onclick="togglePasswordVisibility()" aria-label="Toggle password visibility">
+                                <input type="password" id="password" placeholder="••••••••" required
+                                    autocomplete="current-password">
+                                <button type="button" class="btn-icon password-toggle"
+                                    onclick="togglePasswordVisibility()" aria-label="Toggle password visibility">
                                     <i data-lucide="eye" id="password-eye"></i>
                                 </button>
                             </div>
@@ -86,7 +91,7 @@
                         <span>Task Manager</span>
                     </div>
                 </div>
-                
+
                 <nav class="sidebar-nav">
                     <button class="nav-item active" data-filter="all" onclick="setFilter('all')">
                         <i data-lucide="inbox"></i> Tasks
@@ -98,7 +103,7 @@
                         <i data-lucide="check-circle"></i> Completed
                     </button>
                 </nav>
-                
+
                 <div class="sidebar-footer">
                     <button class="nav-item text-danger" onclick="logout()">
                         <i data-lucide="log-out"></i> Log Out
@@ -114,7 +119,7 @@
                             <h1 class="greeting" id="user-greeting">Good morning.</h1>
                             <p class="text-secondary">Let's get things done today.</p>
                         </div>
-                        
+
                         <!-- Gamification Widget Removed -->
                     </div>
                 </header>
@@ -136,7 +141,8 @@
                                 <span class="stat-label">Active</span>
                             </div>
                         </div>
-                        <div class="stat-card glass-panel" onclick="setFilter('completed')" title="View Completed Tasks">
+                        <div class="stat-card glass-panel" onclick="setFilter('completed')"
+                            title="View Completed Tasks">
                             <div class="stat-icon text-success"><i data-lucide="check-circle-2"></i></div>
                             <div class="stat-info">
                                 <span class="stat-value" id="stat-completed">0</span>
@@ -147,14 +153,17 @@
 
                     <!-- Create Task Command -->
                     <div class="create-task-wrapper">
-                        <form id="task-form" onsubmit="handleCreateTask(event)" class="glass-panel command-input-expanded">
+                        <form id="task-form" onsubmit="handleCreateTask(event)"
+                            class="glass-panel command-input-expanded">
                             <div class="command-input-row">
                                 <i data-lucide="plus" class="text-secondary"></i>
-                                <input type="text" id="task-title" placeholder="Task title..." required autocomplete="off">
+                                <input type="text" id="task-title" placeholder="Task title..." required
+                                    autocomplete="off">
                             </div>
                             <div class="command-input-row desc-row">
                                 <i data-lucide="align-left" class="text-secondary"></i>
-                                <input type="text" id="task-desc" placeholder="Task description..." required autocomplete="off">
+                                <input type="text" id="task-desc" placeholder="Task description..." required
+                                    autocomplete="off">
                             </div>
                             <div class="command-actions">
                                 <button type="submit" class="btn btn-sm btn-primary">Add Task</button>
@@ -165,8 +174,9 @@
                     <!-- Task List Area -->
                     <div class="task-list-container">
                         <div class="list-header">
-                            <h2 id="current-view-title">Inbox</h2>
-                            <div id="task-list-loading" class="spinner hidden"><i data-lucide="loader-2" class="spin"></i></div>
+                            <h2 id="current-view-title">Tasks</h2>
+                            <div id="task-list-loading" class="spinner hidden"><i data-lucide="loader-2"
+                                    class="spin"></i></div>
                         </div>
 
                         <div id="empty-state" class="empty-state hidden fade-in">
@@ -218,20 +228,23 @@
                 <h3>Confirm Deletion</h3>
                 <button class="btn-icon" onclick="closeConfirmModal()"><i data-lucide="x"></i></button>
             </div>
-            <p class="text-secondary" style="font-size: 0.95rem;">Are you sure you want to delete this task? This action cannot be undone.</p>
+            <p class="text-secondary" style="font-size: 0.95rem;">Are you sure you want to delete this task? This action
+                cannot be undone.</p>
             <div class="modal-actions">
                 <button class="btn btn-ghost" onclick="closeConfirmModal()">Cancel</button>
-                <button class="btn btn-primary" id="confirm-btn" style="background: var(--danger); box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);">Delete</button>
+                <button class="btn btn-primary" id="confirm-btn"
+                    style="background: var(--danger); box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);">Delete</button>
             </div>
         </div>
     </div>
 
     <!-- Toast Notifications -->
     <div id="toast-container" class="toast-container"></div>
-    
+
     <!-- Confetti Canvas for Gamification -->
     <canvas id="confetti-canvas"></canvas>
 
     <script src="js/app.js"></script>
 </body>
+
 </html>
