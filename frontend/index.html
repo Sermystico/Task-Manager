@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Manager</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Ambient Background -->
+    <div class="ambient-bg">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+    </div>
+
+    <div id="app">
+        <!-- Global Theme Toggle -->
+        <button id="theme-toggle" class="btn-icon theme-toggle-global" onclick="toggleTheme()" title="Toggle Theme">
+            <i data-lucide="sun"></i>
+        </button>
+        <!-- Auth View -->
+        <main id="auth-view" class="view active fade-in">
+            <div class="auth-container">
+                <div class="auth-brand">
+                    <i data-lucide="check-square" class="brand-icon"></i>
+                    <h1>Task Manager</h1>
+                </div>
+                
+                <div class="auth-card glass-panel">
+                    <div class="auth-header">
+                        <h2 id="auth-title">Welcome Back</h2>
+                        <p class="text-secondary" id="auth-subtitle">Enter your credentials to continue.</p>
+                    </div>
+
+                    <div class="auth-tabs">
+                        <button class="auth-tab active" id="tab-login" onclick="switchAuthTab('login')">Log In</button>
+                        <button class="auth-tab" id="tab-register" onclick="switchAuthTab('register')">Register</button>
+                    </div>
+
+                    <form id="auth-form" onsubmit="handleAuth(event)">
+                        <div class="input-group">
+                            <label for="username">Username</label>
+                            <div class="input-wrapper">
+                                <i data-lucide="user" class="input-icon"></i>
+                                <input type="text" id="username" placeholder="johndoe" required autocomplete="username">
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label for="password">Password</label>
+                            <div class="input-wrapper">
+                                <i data-lucide="lock" class="input-icon"></i>
+                                <input type="password" id="password" placeholder="••••••••" required autocomplete="current-password">
+                                <button type="button" class="btn-icon password-toggle" onclick="togglePasswordVisibility()" aria-label="Toggle password visibility">
+                                    <i data-lucide="eye" id="password-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div id="auth-error" class="alert alert-error hidden"></div>
+                        <button type="submit" id="auth-submit-btn" class="btn btn-primary w-full mt-4">
+                            <span>Sign In</span>
+                            <i data-lucide="arrow-right"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </main>
+
+        <!-- Dashboard View -->
+        <div id="dashboard-view" class="view hidden">
+            <!-- Sidebar -->
+            <aside class="sidebar glass-panel">
+                <div class="sidebar-header">
+                    <div class="brand">
+                        <i data-lucide="check-square" class="brand-icon"></i>
+                        <span>Task Manager</span>
+                    </div>
+                </div>
+                
+                <nav class="sidebar-nav">
+                    <button class="nav-item active" onclick="setFilter('all')">
+                        <i data-lucide="inbox"></i> Inbox
+                    </button>
+                    <button class="nav-item" onclick="setFilter('active')">
+                        <i data-lucide="circle"></i> Active
+                    </button>
+                    <button class="nav-item" onclick="setFilter('completed')">
+                        <i data-lucide="check-circle"></i> Completed
+                    </button>
+                </nav>
+                
+                <div class="sidebar-footer">
+                    <button class="nav-item text-danger" onclick="logout()">
+                        <i data-lucide="log-out"></i> Log Out
+                    </button>
+                </div>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="dashboard-main">
+                <header class="dashboard-header glass-panel sticky-header">
+                    <div class="header-content">
+                        <div>
+                            <h1 class="greeting" id="user-greeting">Good morning.</h1>
+                            <p class="text-secondary">Let's get things done today.</p>
+                        </div>
+                        
+                        <!-- Gamification Widget Removed -->
+                    </div>
+                </header>
+
+                <div class="content-wrapper">
+                    <!-- Stats Overview -->
+                    <div class="stats-grid">
+                        <div class="stat-card glass-panel" onclick="setFilter('all')" title="View All Tasks">
+                            <div class="stat-icon"><i data-lucide="list-todo"></i></div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="stat-total">0</span>
+                                <span class="stat-label">Total Tasks</span>
+                            </div>
+                        </div>
+                        <div class="stat-card glass-panel" onclick="setFilter('active')" title="View Active Tasks">
+                            <div class="stat-icon text-accent"><i data-lucide="activity"></i></div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="stat-active">0</span>
+                                <span class="stat-label">Active</span>
+                            </div>
+                        </div>
+                        <div class="stat-card glass-panel" onclick="setFilter('completed')" title="View Completed Tasks">
+                            <div class="stat-icon text-success"><i data-lucide="check-circle-2"></i></div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="stat-completed">0</span>
+                                <span class="stat-label">Completed</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Create Task Command -->
+                    <div class="create-task-wrapper">
+                        <form id="task-form" onsubmit="handleCreateTask(event)" class="glass-panel command-input-expanded">
+                            <div class="command-input-row">
+                                <i data-lucide="plus" class="text-secondary"></i>
+                                <input type="text" id="task-title" placeholder="Task title..." required autocomplete="off">
+                            </div>
+                            <div class="command-input-row desc-row">
+                                <i data-lucide="align-left" class="text-secondary"></i>
+                                <input type="text" id="task-desc" placeholder="Task description..." required autocomplete="off">
+                            </div>
+                            <div class="command-actions">
+                                <button type="submit" class="btn btn-sm btn-primary">Add Task</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Task List Area -->
+                    <div class="task-list-container">
+                        <div class="list-header">
+                            <h2 id="current-view-title">Inbox</h2>
+                            <div id="task-list-loading" class="spinner hidden"><i data-lucide="loader-2" class="spin"></i></div>
+                        </div>
+
+                        <div id="empty-state" class="empty-state hidden fade-in">
+                            <div class="empty-icon"><i data-lucide="check-square"></i></div>
+                            <h3>You're all caught up!</h3>
+                            <p class="text-secondary">No tasks found in this view.</p>
+                        </div>
+
+                        <ul id="task-list" class="task-list">
+                            <!-- Tasks populated via JS -->
+                        </ul>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Edit Task Modal -->
+    <div id="edit-modal" class="modal hidden">
+        <div class="modal-backdrop" onclick="closeEditModal()"></div>
+        <div class="modal-content glass-panel">
+            <div class="modal-header">
+                <h3>Edit Task</h3>
+                <button class="btn-icon" onclick="closeEditModal()"><i data-lucide="x"></i></button>
+            </div>
+            <form id="edit-form" onsubmit="handleUpdateTask(event)">
+                <input type="hidden" id="edit-task-id">
+                <div class="input-group">
+                    <label for="edit-task-title">Title</label>
+                    <input type="text" id="edit-task-title" required class="input-lg">
+                </div>
+                <div class="input-group">
+                    <label for="edit-task-desc">Description (Optional)</label>
+                    <textarea id="edit-task-desc" rows="3" placeholder="Add details..."></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-ghost" onclick="closeEditModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="toast-container"></div>
+    
+    <!-- Confetti Canvas for Gamification -->
+    <canvas id="confetti-canvas"></canvas>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
