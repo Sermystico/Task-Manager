@@ -294,6 +294,7 @@ input:focus, textarea:focus { outline: none; border-color: var(--accent-primary)
 
 /* Custom Checkbox removed */
 
+.task-serial { color: var(--text-muted); font-size: 0.85rem; font-family: monospace; font-weight: 600; width: 2rem; display: flex; align-items: center; justify-content: flex-end; margin-right: 0.75rem; flex-shrink: 0; }
 .task-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 .task-title { font-weight: 500; font-size: 0.95rem; transition: color var(--transition-fast); display: flex; align-items: center; }
 .task-title-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 0 1 auto; }
@@ -304,7 +305,7 @@ input:focus, textarea:focus { outline: none; border-color: var(--accent-primary)
 .task-actions { display: flex; gap: 0.25rem; opacity: 0; transition: opacity var(--transition-fast); }
 .task-item:hover .task-actions { opacity: 1; }
 
-.task-item.completed .task-title-text { text-decoration: line-through; color: var(--text-secondary); }
+.task-item.completed .task-title-text { color: var(--text-secondary); }
 .task-item.completed .task-desc { opacity: 0.5; }
 .task-item.completed { background: rgba(20,20,20,0.3); border-color: transparent; }
 
@@ -347,6 +348,15 @@ input:focus, textarea:focus { outline: none; border-color: var(--accent-primary)
 
 /* Confetti Canvas */
 #confetti-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 999; }
+
+/* Shutter */
+.shutter-overlay {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: var(--bg-base); z-index: 9999; display: flex; align-items: center; justify-content: center;
+    transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1);
+}
+.shutter-overlay.open { transform: translateY(-100%); }
+.shutter-content { text-align: center; }
 
 /* Responsive */
 @media (max-width: 768px) {

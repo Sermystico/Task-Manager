@@ -49,6 +49,15 @@ function init() {
     } else {
         showAuth();
     }
+    
+    // Open Shutter
+    setTimeout(() => {
+        const shutter = document.getElementById('shutter-overlay');
+        if (shutter) {
+            shutter.classList.add('open');
+            setTimeout(() => shutter.remove(), 1000);
+        }
+    }, 800);
 }
 
 // UI Nav
@@ -216,13 +225,12 @@ function setFilter(filter) {
     
     // Update active nav class
     document.querySelectorAll('.nav-item').forEach(btn => {
-        btn.classList.remove('active');
-        if (btn.innerText.toLowerCase().includes(filter.toLowerCase())) {
-            btn.classList.add('active');
+        if(btn.dataset.filter) {
+            btn.classList.toggle('active', btn.dataset.filter === filter);
         }
     });
     
-    const titles = { 'all': 'Inbox', 'active': 'Active Tasks', 'completed': 'Completed Tasks' };
+    const titles = { 'all': 'Tasks', 'active': 'Active Tasks', 'completed': 'Completed Tasks' };
     currentViewTitle.textContent = titles[filter];
     
     renderTasks();
@@ -274,6 +282,7 @@ function renderTasks(options = {}) {
         }
         
         li.innerHTML = `
+            <div class="task-serial">#${index + 1}</div>
             <div class="task-content">
                 <div class="task-title" title="${escapeHtml(task.title)}">
                     <span class="task-title-text">${escapeHtml(task.title)}</span>
@@ -389,9 +398,35 @@ async function markIncomplete(id) {
     }
 }
 
+let taskToDelete = null;
+
+function openConfirmModal(id) {
+    taskToDelete = id;
+    document.getElementById('confirm-modal').classList.remove('hidden');
+}
+
+function closeConfirmModal() {
+    taskToDelete = null;
+    document.getElementById('confirm-modal').classList.add('hidden');
+}
+
+document.getElementById('confirm-btn').addEventListener('click', async () => {
+    if (taskToDelete !== null) {
+        const id = taskToDelete;
+        closeConfirmModal();
+        await executeDelete(id, false);
+    }
+});
+
 async function deleteTask(id, skipConfirm = false) {
-    if (!skipConfirm && !confirm('Are you sure you want to delete this task?')) return;
-    
+    if (!skipConfirm) {
+        openConfirmModal(id);
+        return;
+    }
+    await executeDelete(id, true);
+}
+
+async function executeDelete(id, skipConfirm) {
     try {
         await apiFetch(`/tasks/${id}`, { method: 'DELETE' });
         tasks = tasks.filter(t => t.id !== id);
