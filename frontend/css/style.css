@@ -329,21 +329,43 @@ input:focus, textarea:focus { outline: none; border-color: var(--accent-primary)
 .modal-actions { display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem; }
 
 /* Toasts */
-.toast-container { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; gap: 0.75rem; z-index: 100; pointer-events: none; align-items: center; }
+.toast-container {
+    position: fixed;
+    top: 5rem;
+    right: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    z-index: 1100;
+    pointer-events: none;
+    align-items: flex-end;
+    max-width: 400px;
+}
 .toast {
-    background: var(--bg-surface); backdrop-filter: var(--glass-blur); border: 1px solid var(--border-subtle);
-    color: var(--text-primary); padding: 1rem 1.5rem; border-radius: var(--radius-md); box-shadow: var(--shadow-lg);
-    display: flex; align-items: center; gap: 0.75rem; pointer-events: auto;
-    animation: slideInUp var(--transition-spring);
+    background: var(--bg-surface);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-primary);
+    padding: 0.875rem 1.25rem;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    pointer-events: auto;
+    animation: slideInRight var(--transition-spring);
+    max-width: 100%;
 }
-@keyframes slideInUp {
-    from { opacity: 0; transform: translateY(100%); }
-    to { opacity: 1; transform: translateY(0); }
+@keyframes slideInRight {
+    from { opacity: 0; transform: translateX(100%); }
+    to { opacity: 1; transform: translateX(0); }
 }
-.toast.hiding { animation: fadeOutDown 0.3s forwards; }
-@keyframes fadeOutDown {
-    from { opacity: 1; transform: translateY(0); }
-    to { opacity: 0; transform: translateY(100%); }
+.toast.hiding {
+    animation: fadeOutRight 0.3s forwards;
+}
+@keyframes fadeOutRight {
+    from { opacity: 1; transform: translateX(0); }
+    to { opacity: 0; transform: translateX(100%); }
 }
 
 /* Confetti Canvas */
@@ -371,7 +393,17 @@ input:focus, textarea:focus { outline: none; border-color: var(--accent-primary)
     /* Gamification widget removed */
     .task-item:hover .task-actions { opacity: 1; }
     .task-actions { opacity: 1; } /* Always show on mobile */
-    .toast-container { bottom: 1rem; left: 1rem; right: 1rem; transform: none; }
+    .toast-container {
+        top: 4.5rem;
+        right: 1rem;
+        left: auto;
+        bottom: auto;
+        transform: none;
+        max-width: calc(100vw - 2rem);
+    }
+    .theme-toggle-global {
+        right: 1rem;
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {
