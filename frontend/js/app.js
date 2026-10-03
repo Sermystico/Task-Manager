@@ -275,15 +275,18 @@ function renderTasks(options = {}) {
     sorted.forEach((task, index) => {
         const li = document.createElement('li');
         li.className = `task-item ${task.completed ? 'completed' : ''}`;
+        li.setAttribute('data-task-id', task.id);
         if (options.animateNew === task.id) {
             li.classList.add('new-item');
+        } else if (options.noAnimate) {
+            li.style.animation = 'none';
         } else {
             li.style.animationDelay = `${index * 0.05}s`;
         }
         
         li.innerHTML = `
             <div class="task-serial">#${index + 1}</div>
-            <div class="task-content">
+            <div class="task-content" style="cursor: pointer;" onclick="openViewModal(${task.id})">
                 <div class="task-title" title="${escapeHtml(task.title)}">
                     <span class="task-title-text">${escapeHtml(task.title)}</span>
                     ${task.completed ? `<span class="status-badge status-completed">(completed)</span>` : `<span class="status-badge status-pending">(pending)</span>`}
@@ -329,6 +332,7 @@ async function handleCreateTask(e) {
         
         titleInput.value = '';
         descInput.value = '';
+        descInput.style.height = '1.5rem';
         updateStats();
         requestAnimationFrame(() => {
             renderTasks({ animateNew: rawTask[0] });
@@ -341,7 +345,12 @@ async function handleCreateTask(e) {
     }
 }
 
-async function markComplete(id, shouldDelete = false) {
+async function markComplete(id, shouldDelete = false, skipConfirm = false) {
+    if (shouldDelete && !skipConfirm) {
+        openConfirmModal(() => markComplete(id, true, true));
+        return;
+    }
+
     const task = tasks.find(t => t.id === id);
     if (!task) return;
     
@@ -357,7 +366,7 @@ async function markComplete(id, shouldDelete = false) {
         
         fireConfetti();
         updateStats();
-        renderTasks();
+        renderTasks({ noAnimate: true });
         showToast('Task marked completed', 'success');
         
         if (shouldDelete) {
@@ -368,7 +377,7 @@ async function markComplete(id, shouldDelete = false) {
     } catch (err) {
         task.completed = origCompleted;
         updateStats();
-        renderTasks();
+        renderTasks({ noAnimate: true });
         showToast('Failed to complete task', 'error');
     }
 }
@@ -388,39 +397,39 @@ async function markIncomplete(id) {
         });
         
         updateStats();
-        renderTasks();
+        renderTasks({ noAnimate: true });
         showToast('Task reopened', 'success');
     } catch (err) {
         task.completed = origCompleted;
         updateStats();
-        renderTasks();
+        renderTasks({ noAnimate: true });
         showToast('Failed to reopen task', 'error');
     }
 }
 
-let taskToDelete = null;
+let confirmAction = null;
 
-function openConfirmModal(id) {
-    taskToDelete = id;
+function openConfirmModal(action) {
+    confirmAction = action;
     document.getElementById('confirm-modal').classList.remove('hidden');
 }
 
 function closeConfirmModal() {
-    taskToDelete = null;
+    confirmAction = null;
     document.getElementById('confirm-modal').classList.add('hidden');
 }
 
 document.getElementById('confirm-btn').addEventListener('click', async () => {
-    if (taskToDelete !== null) {
-        const id = taskToDelete;
+    if (confirmAction !== null) {
+        const action = confirmAction;
         closeConfirmModal();
-        await executeDelete(id, false);
+        await action();
     }
 });
 
 async function deleteTask(id, skipConfirm = false) {
     if (!skipConfirm) {
-        openConfirmModal(id);
+        openConfirmModal(() => executeDelete(id, false));
         return;
     }
     await executeDelete(id, true);
@@ -429,13 +438,46 @@ async function deleteTask(id, skipConfirm = false) {
 async function executeDelete(id, skipConfirm) {
     try {
         await apiFetch(`/tasks/${id}`, { method: 'DELETE' });
+        
+        const taskElement = document.querySelector(`li[data-task-id="${id}"]`);
+        if (taskElement) {
+            taskElement.classList.add('deleting');
+            await new Promise(resolve => setTimeout(resolve, 400));
+        }
+        
         tasks = tasks.filter(t => t.id !== id);
         updateStats();
-        renderTasks();
+        renderTasks({ noAnimate: true });
         if(!skipConfirm) showToast('Task deleted');
     } catch (err) {
         showToast('Failed to delete task', 'error');
     }
+}
+
+// View Flow
+function openViewModal(id) {
+    const task = tasks.find(t => t.id === id);
+    if (!task) return;
+    
+    document.getElementById('view-task-title').textContent = task.title;
+    document.getElementById('view-task-desc').textContent = task.description || 'No description provided.';
+    
+    const actionsContainer = document.getElementById('view-task-actions');
+    actionsContainer.innerHTML = `
+        ${!task.completed ? 
+            `<button class="btn btn-ghost text-success" onclick="closeViewModal(); markComplete(${task.id})" title="Mark Complete"><i data-lucide="check"></i> Complete</button>` : 
+            `<button class="btn btn-ghost text-secondary" onclick="closeViewModal(); markIncomplete(${task.id})" title="Reopen"><i data-lucide="rotate-ccw"></i> Reopen</button>`
+        }
+        <button class="btn btn-ghost" onclick="closeViewModal(); openEditModal(${task.id})" title="Edit"><i data-lucide="edit-2"></i> Edit</button>
+        <button class="btn btn-ghost text-danger" onclick="closeViewModal(); deleteTask(${task.id})" title="Delete"><i data-lucide="trash-2"></i> Delete</button>
+    `;
+    
+    document.getElementById('view-modal').classList.remove('hidden');
+    lucide.createIcons();
+}
+
+function closeViewModal() {
+    document.getElementById('view-modal').classList.add('hidden');
 }
 
 // Edit Flow
@@ -474,7 +516,7 @@ async function handleUpdateTask(e) {
         task.title = rawTask[1];
         task.description = rawTask[2];
         
-        renderTasks();
+        renderTasks({ noAnimate: true });
         closeEditModal();
         showToast('Task updated', 'success');
     } catch (err) {
@@ -567,3 +609,37 @@ function escapeHtml(unsafe) {
 }
 
 init();
+
+document.addEventListener('DOMContentLoaded', () => {
+    const taskDescInput = document.getElementById('task-desc');
+    if (taskDescInput) {
+        taskDescInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                if (e.shiftKey) {
+                    e.preventDefault();
+                    const start = this.selectionStart;
+                    const end = this.selectionEnd;
+                    this.value = this.value.substring(0, start) + '\n' + this.value.substring(end);
+                    this.selectionStart = this.selectionEnd = start + 1;
+                    this.dispatchEvent(new Event('input'));
+                } else {
+                    e.preventDefault();
+                    if (typeof document.getElementById('task-form').requestSubmit === 'function') {
+                        document.getElementById('task-form').requestSubmit();
+                    } else {
+                        document.getElementById('task-form').dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+                    }
+                }
+            }
+        });
+        
+        taskDescInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            if (this.value) {
+                this.style.height = (this.scrollHeight) + 'px';
+            } else {
+                this.style.height = '1.5rem';
+            }
+        });
+    }
+});

@@ -157,13 +157,13 @@
                             class="glass-panel command-input-expanded">
                             <div class="command-input-row">
                                 <i data-lucide="plus" class="text-secondary"></i>
-                                <input type="text" id="task-title" placeholder="Task title..." required
+                                <input type="text" id="task-title" placeholder="Task title..." required maxlength="100"
                                     autocomplete="off">
                             </div>
                             <div class="command-input-row desc-row">
                                 <i data-lucide="align-left" class="text-secondary"></i>
-                                <input type="text" id="task-desc" placeholder="Task description..." required
-                                    autocomplete="off">
+                                <textarea id="task-desc" placeholder="Task description... (Shift+Enter for newline)" required maxlength="1000"
+                                    autocomplete="off" rows="1"></textarea>
                             </div>
                             <div class="command-actions">
                                 <button type="submit" class="btn btn-sm btn-primary">Add Task</button>
@@ -206,17 +206,34 @@
                 <input type="hidden" id="edit-task-id">
                 <div class="input-group">
                     <label for="edit-task-title">Title</label>
-                    <input type="text" id="edit-task-title" required class="input-lg">
+                    <input type="text" id="edit-task-title" required maxlength="100" class="input-lg">
                 </div>
                 <div class="input-group">
                     <label for="edit-task-desc">Description (Optional)</label>
-                    <textarea id="edit-task-desc" rows="3" placeholder="Add details..."></textarea>
+                    <textarea id="edit-task-desc" rows="3" maxlength="1000" placeholder="Add details..."></textarea>
                 </div>
                 <div class="modal-actions">
                     <button type="button" class="btn btn-ghost" onclick="closeEditModal()">Cancel</button>
                     <button type="submit" class="btn btn-primary">Save Changes</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- View Task Modal -->
+    <div id="view-modal" class="modal hidden">
+        <div class="modal-backdrop" onclick="closeViewModal()"></div>
+        <div class="modal-content glass-panel" style="max-height: 80vh; display: flex; flex-direction: column;">
+            <div class="modal-header" style="flex-shrink: 0; align-items: flex-start; gap: 1rem;">
+                <h3 id="view-task-title" style="word-wrap: break-word; overflow-wrap: break-word; margin: 0;">Task Title</h3>
+                <button class="btn-icon" onclick="closeViewModal()" style="flex-shrink: 0;"><i data-lucide="x"></i></button>
+            </div>
+            <div style="flex-grow: 1; overflow-y: auto; margin-bottom: 1.5rem; padding-right: 0.5rem;">
+                <p id="view-task-desc" class="text-secondary" style="white-space: pre-wrap; word-wrap: break-word; margin: 0;"></p>
+            </div>
+            <div class="modal-actions" style="margin-top: 0; flex-shrink: 0;" id="view-task-actions">
+                <!-- Actions populated via JS -->
+            </div>
         </div>
     </div>
 

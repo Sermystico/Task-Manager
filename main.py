@@ -24,8 +24,8 @@ app.add_middleware(
 )
 
 class Task(BaseModel):
-    title: str = Field(min_length=1)
-    description: str = Field(min_length=1)
+    title: str = Field(min_length=1, max_length=100)
+    description: str = Field(min_length=1, max_length=1000)
     completed: bool = False
 
 @app.get("/")
