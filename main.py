@@ -9,9 +9,9 @@ from auth.dependencies import get_current_user
 from fastapi.security import OAuth2PasswordRequestForm
 
 from database.db import (
-    get_all_tasks, create_task, get_task, update_task, 
-    delete_task, create_user, get_user_by_username
+    create_user, get_user_by_username
 )
+from handlers import task_handler
 
 app = FastAPI()
 
@@ -23,18 +23,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-class Task(BaseModel):
-    title: str = Field(min_length=1, max_length=100)
-    description: str = Field(min_length=1, max_length=1000)
-    completed: bool = False
+app.include_router(task_handler.router)
 
 @app.get("/")
 def home():
     return {"message": "Task Management API is running"}
-
-@app.get("/tasks")
-def get_tasks(current_user=Depends(get_current_user)):
-    return get_all_tasks(current_user["user_id"])
 
 import psycopg
 
@@ -81,72 +74,4 @@ def login_user(form_data: OAuth2PasswordRequestForm = Depends()):
         "token_type": "bearer"
     }
 
-@app.post("/tasks")
-def create_new_task(
-    task: Task,
-    current_user=Depends(get_current_user)
-):
-    return create_task(
-        task.title,
-        task.description,
-        task.completed,
-        current_user["user_id"]
-    )
 
-@app.get("/tasks/{task_id}")
-def get_one_task(
-    task_id: int,
-    current_user=Depends(get_current_user)
-):
-    task = get_task(
-        task_id,
-        current_user["user_id"]
-    )
-
-    if task is None:
-        raise HTTPException(
-            status_code=404,
-            detail="Task not found"
-        )
-
-    return task
-
-@app.put("/tasks/{task_id}")
-def update_one_task(
-    task_id: int,
-    task: Task,
-    current_user=Depends(get_current_user)
-):
-    updated_task = update_task(
-        task_id,
-        task.title,
-        task.description,
-        task.completed,
-        current_user["user_id"]
-    )
-
-    if updated_task is None:
-        raise HTTPException(
-            status_code=404,
-            detail="Task not found"
-        )
-
-    return updated_task
-
-@app.delete("/tasks/{task_id}")
-def delete_one_task(
-    task_id: int,
-    current_user=Depends(get_current_user)
-):
-    deleted_task = delete_task(
-        task_id,
-        current_user["user_id"]
-    )
-
-    if deleted_task is None:
-        raise HTTPException(
-            status_code=404,
-            detail="Task not found"
-        )
-
-    return {"message": "Task deleted"}

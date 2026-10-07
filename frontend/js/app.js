@@ -243,7 +243,7 @@ async function fetchTasks() {
     
     try {
         const rawTasks = await apiFetch('/tasks');
-        tasks = rawTasks.map(t => ({ id: t[0], title: t[1], description: t[2], completed: t[3], user_id: t[4] }));
+        tasks = rawTasks.map(t => ({ id: t.id, title: t.title, description: t.description, completed: t.completed, user_id: t.user_id }));
         updateStats();
         renderTasks();
     } catch (err) {
@@ -328,14 +328,14 @@ async function handleCreateTask(e) {
             body: JSON.stringify({ title: titleInput.value, description: descInput.value, completed: false })
         });
         
-        tasks.unshift({ id: rawTask[0], title: rawTask[1], description: rawTask[2], completed: rawTask[3], user_id: rawTask[4] });
+        tasks.unshift({ id: rawTask.id, title: rawTask.title, description: rawTask.description, completed: rawTask.completed, user_id: rawTask.user_id });
         
         titleInput.value = '';
         descInput.value = '';
         descInput.style.height = '1.5rem';
         updateStats();
         requestAnimationFrame(() => {
-            renderTasks({ animateNew: rawTask[0] });
+            renderTasks({ animateNew: rawTask.id });
         });
         showToast('Task created', 'success');
     } catch (err) {
@@ -513,8 +513,8 @@ async function handleUpdateTask(e) {
             body: JSON.stringify({ title, description: desc, completed: task.completed })
         });
         
-        task.title = rawTask[1];
-        task.description = rawTask[2];
+        task.title = rawTask.title;
+        task.description = rawTask.description;
         
         renderTasks({ noAnimate: true });
         closeEditModal();
