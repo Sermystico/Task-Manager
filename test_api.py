@@ -32,7 +32,7 @@ def test_registration_and_login():
     # 1. Register User A
     response = client.post("/register", json={"username": "userA", "password": "passwordA"})
     assert response.status_code == 200
-    assert response.json()[1] == "userA"
+    assert response.json()["username"] == "userA"
 
     # 2. Duplicate registration fails
     response = client.post("/register", json={"username": "userA", "password": "passwordA"})
