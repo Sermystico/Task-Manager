@@ -14,6 +14,20 @@ A lightweight, robust RESTful API built with **FastAPI** and **PostgreSQL** (usi
 
 ---
 
+## Architecture
+
+This project uses a **Layered Monolith Architecture** to cleanly separate concerns:
+
+- **Handlers (`handlers/`)**: Defines the API endpoints (FastAPI routers). Responsible for HTTP request parsing, response formatting, and dependency injection.
+- **Services (`services/`)**: Contains business logic and domain rules. Enforces constraints (e.g. user isolation).
+- **Repositories (`repositories/`)**: Encapsulates all raw SQL queries (`psycopg`) and database interaction. Maps rows to Pydantic models.
+- **Models (`models/`)**: Pydantic schemas for data validation and serialization.
+- **Core (`core/`)**: Application configuration and database connection providers.
+
+**Request Flow:** `HTTP Request` &rarr; `Handler` &rarr; `Service` &rarr; `Repository` &rarr; `PostgreSQL`
+
+---
+
 ## Tech Stack
 
 - **Framework**: [FastAPI](https://fastapi.tiangolo.com/)
