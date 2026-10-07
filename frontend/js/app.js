@@ -151,6 +151,8 @@ async function handleAuth(e) {
     }
 }
 
+// This function sends the user's login details to the backend using form data,
+// and stores the returned JWT so protected API requests can use it.
 async function login(username, password) {
     const params = new URLSearchParams();
     params.append('username', username);
@@ -190,6 +192,8 @@ function logout() {
 }
 
 // API Fetch Helper
+// This helper adds the JWT to requests that require authentication.
+// It intercepts 401 (Unauthorized) responses to automatically log the user out.
 async function apiFetch(endpoint, options = {}) {
     if (!token) { logout(); throw new Error('Not authenticated'); }
     const headers = { 'Authorization': `Bearer ${token}`, ...options.headers };
@@ -243,6 +247,8 @@ async function fetchTasks() {
     
     try {
         const rawTasks = await apiFetch('/tasks');
+        // The backend returns task objects, so we map them directly using named properties
+        // such as t.title instead of relying on array positions.
         tasks = rawTasks.map(t => ({ id: t.id, title: t.title, description: t.description, completed: t.completed, user_id: t.user_id }));
         updateStats();
         renderTasks();
@@ -253,6 +259,8 @@ async function fetchTasks() {
     }
 }
 
+// This function renders the user's tasks to the DOM.
+// We access explicit properties like task.title to build the HTML safely.
 function renderTasks(options = {}) {
     taskListEl.innerHTML = '';
     
@@ -322,6 +330,7 @@ async function handleCreateTask(e) {
 
     btn.disabled = true;
     try {
+        // Send a POST request to create the task. The API contract expects title, description, and completed status.
         const rawTask = await apiFetch('/tasks', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },

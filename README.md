@@ -129,27 +129,49 @@ The server will be accessible at `http://127.0.0.1:8000`.
 
 ---
 
-## API Endpoints
+## API Contract
 
-| Method | Endpoint | Description | Request Body | Auth Required |
-|---|---|---|---|---|
-| `GET` | `/` | Health check / Welcome message | *None* | No |
-| `POST` | `/register` | Register a new user | JSON (`username`, `password`) | No |
-| `POST` | `/login` | Authenticate user and get JWT | Form Data (`username`, `password`) | No |
-| `GET` | `/tasks` | Retrieve all tasks for current user | *None* | Yes |
-| `POST` | `/tasks` | Create a new task | JSON (`title`, `description`, `completed`) | Yes |
-| `GET` | `/tasks/{task_id}` | Retrieve a specific task by ID | *None* | Yes |
-| `PUT` | `/tasks/{task_id}` | Update an existing task | JSON (`title`, `description`, `completed`) | Yes |
-| `DELETE` | `/tasks/{task_id}` | Delete a task by ID | *None* | Yes |
+The frontend strictly depends on this API contract. The backend implementation (Handlers, Services, Repositories) can change, but this request/response format remains constant.
 
-### Sample Payload (`Task`)
+### Authentication
 
-```json
-{
-  "title": "Buy groceries",
-  "description": "Milk, eggs, and bread",
-  "completed": false
-}
-```
+**`POST /register`**
+- **Auth:** None
+- **Body:** JSON `{"username": "...", "password": "..."}`
+- **Success (200):** `{"id": 1, "username": "..."}`
+- **Error (400):** `{"detail": "Username already registered"}`
+
+**`POST /login`**
+- **Auth:** None
+- **Body:** Form Data `username=...&password=...`
+- **Success (200):** `{"access_token": "...", "token_type": "bearer"}`
+- **Error (401):** `{"detail": "Invalid username or password"}`
+
+### Tasks
+
+**`GET /tasks`**
+- **Auth:** Bearer JWT
+- **Success (200):** Array of objects `[{"id": 1, "title": "...", "description": "...", "completed": false, "user_id": 1}]`
+
+**`POST /tasks`**
+- **Auth:** Bearer JWT
+- **Body:** JSON `{"title": "...", "description": "...", "completed": false}`
+- **Success (200):** `{"id": 1, "title": "...", "description": "...", "completed": false, "user_id": 1}`
+
+**`GET /tasks/{task_id}`**
+- **Auth:** Bearer JWT
+- **Success (200):** `{"id": 1, "title": "...", "description": "...", "completed": false, "user_id": 1}`
+- **Error (404):** `{"detail": "Task not found"}`
+
+**`PUT /tasks/{task_id}`**
+- **Auth:** Bearer JWT
+- **Body:** JSON `{"title": "...", "description": "...", "completed": true}`
+- **Success (200):** `{"id": 1, "title": "...", "description": "...", "completed": true, "user_id": 1}`
+- **Error (404):** `{"detail": "Task not found"}`
+
+**`DELETE /tasks/{task_id}`**
+- **Auth:** Bearer JWT
+- **Success (200):** `{"message": "Task deleted"}`
+- **Error (404):** `{"detail": "Task not found"}`
 
 ---
